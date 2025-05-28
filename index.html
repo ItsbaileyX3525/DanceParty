@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>A lil dance</title>
+	<link rel="stylesheet" href="public/css/index.css">
+</head>
+<body>
+    <p style="position:absolute;top:10px;color: white;font-size: larger;">Status: <a class="connectionText" style="color: orange">Connecting</a></p>
+    <p class="reconnectButton" style="cursor: pointer;visibility: hidden;position:absolute;top:30px;color: white;font-size: larger;">Reconnect?</p>
+    <p class="information" style="position:absolute;top:50px;color: white;font-size: larger;"></p>
+    <div style="z-index: 1001;" class="chat-container" id="chatContainer">
+        <div class="messages" id="messages"></div>
+        <input maxlength="100" type="text" id="chatInput" placeholder="Type a message..." autocomplete="off" />
+    </div>
+    <button class="chat-toggle" id="chatToggleBtn">Hide chat</button>
+	<script src="public/js/utils.js"></script>
+	<script src="public/js/message.js"></script>
+	<script src="public/js/connect.js"></script>
+	<script src="public/js/main.js"></script>
+	<script src="public/js/chat.js"></script>
+	<script src="public/js/badwords-list.js"></script>
+	<script src="public/js/badwords.js"></script>
+	<script src="public/js/chatboxHandler.js"></script>
+</body>
+</html>
