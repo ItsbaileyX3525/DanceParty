@@ -3,13 +3,11 @@ function encodeMessage(type, message){
 }
 
 function handleJoinMessage(data) {
-    console.log(data);//Client joined
-
-    if(data.startsWith("Y")){
+    if(data.id === window.userID){
         return;
     }
 
-    addPlayer(data[0]);
+    addPlayer(data.id, 10, 10, data.colour); //Add new player
 }
 
 function handleChatMessage(data) {
@@ -28,7 +26,6 @@ function handleMoveMessage(data) {
     playerDiv.style.left = `${x}px`;
     playerDiv.style.top = `${y}px`;
     return
-    //console.log(`User moved: ${parsedData.message}`);
 }
 
 const linked_functions = {
@@ -36,7 +33,6 @@ const linked_functions = {
     chatMessage: handleChatMessage,
     moveMessage: handleMoveMessage,
     clientDisconnect: (data) => {
-        console.log(`Client disconnected: ${data.message}`);
         const playerDiv = document.getElementById(`player-${data.id}`);
         if (playerDiv) {
             playerDiv.remove();
@@ -44,17 +40,21 @@ const linked_functions = {
             console.warn(`Player div not found for ID: ${data.id}`);
         }
     },
-    updateClients: (data) => {
+    updateClients: (data) => {        
         for(const clients of data){
-            if(clients !== window.userID){
-                addPlayer(clients);
+            if(clients.id !== window.userID){
+                addPlayer(clients.id, clients.x, clients.y, clients.colour);
             }
         }
     },
     assignID: (data) => {
-        console.log(`Assigned ID: ${data}`);
         window.userID = data;
-        addPlayer(data);
+        addPlayer(data, 10, 10, localStorage.getItem("colour")||"red") ;//The player that is joining
+        socket.send(encodeMessage('updateData', {
+            x: 20,
+            y: 20,
+            colour: localStorage.getItem("colour") || 'red'
+        }))
     }
 }
 

@@ -53,23 +53,41 @@ uWS.App()
             const id = ws.userData.id;
             const data = JSON.parse(Buffer.from(message).toString());
             if(data.type == "joinMessage"){
+				const colour = data.message.colour || 'red'; //Default colour if not provided
                 for(const client of clients){
                     //Broadcast to all clients except the sender
                     if(client.userData.id !== id){
-						client.send(encodeMessage("joinMessage", `${id}: ${data.message}`));
+						client.send(encodeMessage("joinMessage", { id: id, colour: colour, message: `${id}: ${data.message}`}));
                     }else{
                         //Send a confirmation message to the sender
 						client.send(encodeMessage("joinMessage", `You have joined the chat with ID: ${id}`));
 						client.send(encodeMessage("assignID", id));
-						client.send(encodeMessage("updateClients", Array.from(clients, c => c.userData.id)));
+						client.send(encodeMessage("updateClients", Array.from(clients, c => c.userData)));
                     }
                 }
             }
+			if(data.type == "updateData"){
+				try{
+					ws.userData.x = data.message.x;
+					ws.userData.y = data.message.y;
+					if(data.message.colour == 'green'){
+						data.message.colour = 'red'; //Green is owner only
+					}
+					ws.userData.colour = data.message.colour;
+				} catch (error) {
+					console.error("Bloody skallywag sent some wrong data: ", error);
+				}
+			}
             if(data.type == "chatMessage"){
-                if(data.message.length < 128){
+				let username = data.message.username;
+				if(data.message.username == "ShowMyIdInstead"){
+					username = id;
+				}else{
+					username = data.message.username.trim();
+				}
+                if(data.message.message.length < 128){
                     for(const client of clients){
-                        //Broadcast to all clients except the sender
-                        client.send(encodeMessage("chatMessage", { message: data.message, id: id}));
+                        client.send(encodeMessage("chatMessage", { message: data.message.message.trim(), id: username}));
                     }
                 }
             }
@@ -77,6 +95,10 @@ uWS.App()
 				for(const client of clients){
 					if(client.userData.id !== id){
 						client.send(encodeMessage("moveMessage", { id: id, x: data.message.x, y: data.message.y }));
+					}else{
+						//Update senders postion on server so when new clients connect they can see the postion without having them to move
+						ws.userData.x = data.message.x;
+						ws.userData.y = data.message.y;
 					}
 				}
 				return
@@ -85,7 +107,6 @@ uWS.App()
 		close: (ws) => {
             const id = ws.userData.id;
             clients.delete(ws);
-			console.log('A client disconnected: ', id);
 			for(const client of clients){
 				if(client.userData.id !== id){
 					client.send(encodeMessage("clientDisconnect", {message: `User ${id} has left the chat`, id: id}));

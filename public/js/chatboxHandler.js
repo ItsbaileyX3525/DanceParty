@@ -4,9 +4,13 @@ const chatContainer = document.getElementById('chatContainer');
 const chatToggleBtn = document.getElementById('chatToggleBtn');
 
 function appendMessage(username, text) {
+    let realText = text;
+    if (localStorage.getItem("crybaby") === "true") {
+        realText = filter.clean(realText);
+    }
     const msg = document.createElement('div');
     msg.className = 'message-bubble';
-    msg.textContent = username +": " +text;
+    msg.textContent = username +": " +realText;
     messagesDiv.appendChild(msg);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
@@ -23,21 +27,12 @@ chatToggleBtn.addEventListener('click', () => {
 });
 
 const isCollapsed = localStorage.getItem('chatCollapsed') || "true";
-console.log(isCollapsed);
 if (isCollapsed === 'true') {
     chatContainer.classList.add('collapsed');
     chatToggleBtn.textContent = 'Show Chat';
 } else {
     chatContainer.classList.remove('collapsed');
     chatToggleBtn.textContent = 'Hide Chat';
-}
-
-function appendMessage(username, text) {
-    const msg = document.createElement('div');
-    msg.className = 'message-bubble';
-    msg.textContent = username +": " +text;
-    messagesDiv.appendChild(msg);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
 const command_help = {
@@ -78,7 +73,6 @@ const commands = {
         }
     },
     "/help": function (args) {
-        console.log(command_help[args[0]]);
 
         if(args[0] && command_help[args[0]]){
             appendMessage("System", command_help[args[0]]);
@@ -101,7 +95,7 @@ chatInput.addEventListener('keydown', function(e) {
             chatInput.value = '';
             return;
         }
-        socket.send(encodeMessage("chatMessage", chatInput.value));
+        socket.send(encodeMessage("chatMessage", { message: chatInput.value, username: localStorage.getItem("username") || "ShowMyIdInstead"}));
         chatInput.value = '';
     }
 });

@@ -38,16 +38,20 @@ function disconnected(){
     document.body.style.cursor = "auto";
 }
 
-function addPlayer(playerID){
+function addPlayer(playerID, x = 0, y = 0, colour = 'red') {
     const playerDiv = document.createElement('div');
     playerDiv.style.position = 'absolute';
     playerDiv.style.width = '40px';
     playerDiv.style.height = '40px';
-    playerDiv.style.background = 'red';
+    playerDiv.style.backgroundColor = colour;
     playerDiv.style.borderRadius = '4px';
     playerDiv.style.zIndex = '1000';
     playerDiv.id = `player-${playerID}`;
     document.body.appendChild(playerDiv);
+    if(x !== 0 && y !== 0) {
+        playerDiv.style.left = `${x}px`;
+        playerDiv.style.top = `${y}px`;
+    }
 }
 
 let localList = [];
